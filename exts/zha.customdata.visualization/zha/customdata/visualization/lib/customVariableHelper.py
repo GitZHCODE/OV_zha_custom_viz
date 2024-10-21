@@ -1,7 +1,6 @@
 import omni.ext
 import omni.ui as ui
 
-import omni.usd
 import omni.kit.commands
 
 from pxr import Usd, UsdGeom, UsdShade, Sdf, Gf, Tf

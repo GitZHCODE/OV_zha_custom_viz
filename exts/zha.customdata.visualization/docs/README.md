@@ -1,4 +1,4 @@
-# Primvar Visualization Extension [zha.customdata.vizualization]
+# Primvar Visualization Extension [zha.customdata.visualization]
 
 A simple extension to visualize data saved on meshes.
 

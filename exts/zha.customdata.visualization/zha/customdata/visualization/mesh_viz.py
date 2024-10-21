@@ -1,6 +1,5 @@
 import omni.ext
 import omni.ui as ui
-import omni.usd
 
 import omni.kit.commands
 from omni.ui import scene as sc

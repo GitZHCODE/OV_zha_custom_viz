@@ -38,7 +38,7 @@ icon = "data/icon.png"
 
 # Main python module this extension provides, it will be publicly available as "import zha.customdata.vizualization".
 [[python.module]]
-name = "zha.customdata.vizualization"
+name = "zha.customdata.visualization"
 
 [[test]]
 # Extra dependencies only to be used during test run

@@ -2,11 +2,11 @@ import omni.ext
 import omni.ui as ui
 
 from omni.kit.viewport.utility import get_active_viewport_window
-import zha.customdata.vizualization.object_info_model as om
-import zha.customdata.vizualization.mesh_viz as mv
+import zha.customdata.visualization.object_info_model as om
+import zha.customdata.visualization.mesh_viz as mv
 from .lib.customVariableHelper import *
 
-import omni.usd
+
 import omni.kit.commands
 
 from pxr import Usd, UsdGeom, UsdShade, Sdf, Gf, Tf
@@ -30,6 +30,7 @@ class ZhaCustomdataVizualizationExtension(omni.ext.IExt):
     # ext_id is current extension id. It can be used with extension manager to query additional information, like where
     # this extension is located on filesystem.
     def __init__(self):
+        super().__init__()
         self.VizHandler = mv.PrimvizHandler()
         
         self._dataTypeIndex = 0

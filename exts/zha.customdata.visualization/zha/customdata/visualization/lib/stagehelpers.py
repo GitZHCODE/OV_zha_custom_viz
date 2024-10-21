@@ -3,7 +3,7 @@ import sys
 
 import omni.ext
 import omni.ui as ui
-from omni.usd import Usd, UsdGeom, Sdf, Gf
+from pxr import Usd, UsdGeom, Sdf, Gf
 from pxr import Vt
 
 from pxr import Usd, UsdGeom
