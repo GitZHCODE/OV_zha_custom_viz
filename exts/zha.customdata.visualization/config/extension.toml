@@ -1,6 +1,6 @@
 [package]
 # Semantic Versioning is used: https://semver.org/
-version = "0.0.1"
+version = "0.0.2"
 
 # Lists people or organizations that are considered the "authors" of the package.
 authors = ["Christoph Geiger, Zaha Hadid Architects"]
@@ -13,7 +13,9 @@ description="A simple extension to visualize data saved on meshes."
 readme  = "docs/README.md"
 
 # URL of the extension source repository.
-repository = ""
+repository = "https://github.com/GitZHCODE/OV_zha_custom_viz"
+
+
 
 # One of categories for UI.
 category = "Visualization"

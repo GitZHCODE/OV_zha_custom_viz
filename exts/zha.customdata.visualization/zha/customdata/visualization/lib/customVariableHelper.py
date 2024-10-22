@@ -6,34 +6,37 @@ import omni.kit.commands
 from pxr import Usd, UsdGeom, UsdShade, Sdf, Gf, Tf
 import numpy as np
 
+import logging
+
 
 def get_custom_variables(prim):
     # Get all variables from the prim
     custom_variables = {}
     
     for attr in prim.GetAttributes():
-        if attr.GetName().startswith("custom:"):
-            value = attr.Get()
+        #eliminate the custom: prefix
+        #if attr.GetName().startswith("custom:"):
+        value = attr.Get()
 
-            type_name = attr.GetTypeName()
-            
-            try:
-                if type_name == Sdf.ValueTypeNames.String:
-                    custom_variables[attr.GetName()] = str(value)
-                elif type_name == Sdf.ValueTypeNames.StringArray:
-                    custom_variables[attr.GetName()] = [str(v) for v in value]
-                elif type_name == Sdf.ValueTypeNames.Bool:
-                    custom_variables[attr.GetName()] = bool(value)
-                elif type_name == Sdf.ValueTypeNames.BoolArray:
-                    custom_variables[attr.GetName()] = [bool(v) for v in value]
+        type_name = attr.GetTypeName()
+        
+        try:
+            if type_name == Sdf.ValueTypeNames.String:
+                custom_variables[attr.GetName()] = str(value)
+            elif type_name == Sdf.ValueTypeNames.StringArray:
+                custom_variables[attr.GetName()] = [str(v) for v in value]
+            elif type_name == Sdf.ValueTypeNames.Bool:
+                custom_variables[attr.GetName()] = bool(value)
+            elif type_name == Sdf.ValueTypeNames.BoolArray:
+                custom_variables[attr.GetName()] = [bool(v) for v in value]
+            else:
+                if np.array(value).size == 1 and len(np.array(value).shape) == 0:
+                    custom_variables[attr.GetName()] = np.array([value])
                 else:
-                    if np.array(value).size == 1 and len(np.array(value).shape) == 0:
-                        custom_variables[attr.GetName()] = np.array([value])
-                    else:
-                        custom_variables[attr.GetName()] = np.array(value)
-            except:
-                print("Error getting custom variable value")
-                continue
+                    custom_variables[attr.GetName()] = np.array(value)
+        except:
+            print("Error getting custom variable value")
+            continue
                 
     return custom_variables
 

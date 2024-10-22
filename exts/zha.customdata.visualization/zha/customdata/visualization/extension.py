@@ -48,7 +48,7 @@ class ZhaCustomdataVizualizationExtension(omni.ext.IExt):
             
     
     def on_startup(self, ext_id):
-        print("[zha.customdata.vizualization] zha customdata vizualization startup")
+        print("[zha.customdata.visualization] zha customdata visualization startup")
         
 
         with self._window.frame:
@@ -139,7 +139,7 @@ class ZhaCustomdataVizualizationExtension(omni.ext.IExt):
         
 
     def on_shutdown(self):
-        print("[zha.customdata.vizualization] zha customdata vizualization shutdown")
+        print("[zha.customdata.visualization] zha customdata visualization shutdown")
 
 
 # video on gradient addon

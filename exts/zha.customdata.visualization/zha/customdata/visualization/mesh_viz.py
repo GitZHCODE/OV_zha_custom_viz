@@ -16,6 +16,8 @@ from .lib import stagehelpers as sh
 from .lib import graphviz as gv
 from .lib import temphelpers as th
 
+
+
 # object to handle the visualization, to receive the variables form the prim and assign them as colors
 class PrimvizHandler:
 
@@ -57,7 +59,7 @@ class PrimvizHandler:
         else:
             self.custom_variables = None
 
-        
+    
     def get_prims_selected_path(self, model, select=False):
         roots = model.get_item_value()
         print("Root: ", roots)
@@ -97,7 +99,11 @@ class PrimvizHandler:
                     for key, value in list(customVars.items()):
                         if type(value) == np.ndarray:
                             
-                            if value.size == 1 and varying_type == 0:
+                            if value.size == 1 and varying_type == 0 and value.dtype.type is not np.str_ and value.dtype.type is not np.object_:
+                            
+                                print(f"Constant: {key} - {value}")
+                                print(value.dtype.type)
+                                
                                 if key not in usable:
                                     usable[key] = []
                                     indices[key] = []
@@ -153,15 +159,17 @@ class PrimvizHandler:
     
     #####----- All assign functions working with vertex colors -----#####
     
-    ##### working like a charme - just add colors as UI input #####
+    ##### working like a charm - just add colors as UI input #####
     def assign_constant_shader(self, attribute_index: int, cmap = "viridis"):
+        
+        #create a base variant set
+        self.create_base_variant("base")
 
         if type(cmap) == str:
             cmap = plt.get_cmap(cmap)
         elif type(cmap) == matplotlib.colors.Colormap:
             cmap = cmap
-            
-        print(type(cmap))
+
         
         if self.prims is None or len(self.prims) == 0:
             return None
@@ -169,12 +177,16 @@ class PrimvizHandler:
         attribute_name = list(self.usable_custom_variables.keys())[attribute_index]
         attributes = np.array(self.usable_custom_variables[attribute_name])
         
-        # Test after here
-        if type(attributes) != np.ndarray:
+        #check if the attribute is a valid numpy array
+        if type(attributes) is not np.ndarray:
             return None
         
         current_usableIndex = 0
-        remapped_values = (attributes - attributes.min()) / (attributes.max() - attributes.min())
+        
+        if attributes.max() != attributes.min():
+            remapped_values = (attributes - attributes.min()) / (attributes.max() - attributes.min())
+        else:
+            remapped_values = np.full(attributes.shape, 0.5)
         
 
         #create the variant set if it does not exist yet
@@ -195,19 +207,22 @@ class PrimvizHandler:
         else:
             variant_set.AddVariant(variant_name)
             variant_set.SetVariantSelection(variant_name)
-        
+
+        # edit the variant set
         with variant_set.GetVariantEditContext():
+            
             for index, prim in enumerate(self.prims):
                 
                 if prim != None and prim.IsA(UsdGeom.Mesh):
+                    
+
                     value = remapped_values[current_usableIndex]
                     sample_color = cmap(value)
                     sample_color = np.squeeze(np.array(sample_color))[:3]
 
                     mesh = UsdGeom.Mesh(prim)
                     color_primvar = mesh.GetDisplayColorPrimvar()
-                    
-                    UsdShade.MaterialBindingAPI(mesh).UnbindAllBindings()
+
 
                     if not color_primvar:
                         color_primvar = UsdGeom.PrimvarsAPI(mesh).CreatePrimvar("displayColor", Vt.Vec3fArray)
@@ -237,6 +252,9 @@ class PrimvizHandler:
 
     ##### working like a charme - just add colors as UI input #####
     def assign_uniform_shader(self, attribute_index: int, cmap = "cividis"):
+        
+        #create a base variant set
+        self.create_base_variant("base")
         
         if type(cmap) == str:
             cmap = plt.get_cmap(cmap)
@@ -286,7 +304,11 @@ class PrimvizHandler:
                     #get the face values form the according attribute
                     values = attributes_np[current_usableIndex]
                     #renormalize the values in the range of attributes_flattened
-                    remapped_values = (values - attributes_flattened.min()) / (attributes_flattened.max() - attributes_flattened.min())
+                    if attributes_flattened.max() != attributes_flattened.min():
+                        remapped_values = (values - attributes_flattened.min()) / (attributes_flattened.max() - attributes_flattened.min())
+                    else:
+                        remapped_values = np.full(attributes_flattened.shape, 0.5)
+
                     
                     colors = cmap(remapped_values)[:, :3]
 
@@ -325,6 +347,9 @@ class PrimvizHandler:
     ##### working like a charme - just add colors as UI input #####
     def assign_vertex_shader(self, attribute_index: int, cmap = "plasma"):
         
+        #create a base variant set
+        self.create_base_variant("base")
+        
         if type(cmap) == str:
             cmap = plt.get_cmap(cmap)
         elif type(cmap) == plt.colors.ListedColormap:
@@ -367,12 +392,19 @@ class PrimvizHandler:
         
         
         with variant_set.GetVariantEditContext():
+            
             for index, prim in enumerate(self.prims):
                 if prim != None and prim.IsA(UsdGeom.Mesh):
+                    #remove the material binding
+                    UsdShade.MaterialBindingAPI(prim).UnbindAllBindings()
+                    
                     #get the face values form the according attribute
                     values = attributes_np[current_usableIndex]
                     #renormalize the values in the range of attributes_flattened
-                    remapped_values = (values - attributes_flattened.min()) / (attributes_flattened.max() - attributes_flattened.min())
+                    if attributes_flattened.max() != attributes_flattened.min():
+                        remapped_values = (values - attributes_flattened.min()) / (attributes_flattened.max() - attributes_flattened.min())
+                    else:
+                        remapped_values = np.full(attributes_flattened.shape, 0.5)
                     
                     colors = cmap(remapped_values)[:, :3]
 
@@ -412,3 +444,49 @@ class PrimvizHandler:
 
 
     #####----- All assign functions working with vertex colors -----#####
+    
+    
+    # shaders should be visible on this variant
+    def create_base_variant(self, variant_name: str="base") -> None:
+        '''
+        Create a base variant set with the given name
+        
+        Parameters: variant_name: str, name of the variant set (default: "base")
+        
+        Returns: None
+        '''
+        #create the variant set if it does not exist yet
+        if self.parent_prim.GetVariantSets().HasVariantSet(self.variant_set_name):
+            variant_set = self.parent_prim.GetVariantSets().GetVariantSet(self.variant_set_name)
+        else: 
+            variant_set = self.parent_prim.GetVariantSets().AddVariantSet(self.variant_set_name)
+
+        #check if the variant already exists, if not create it
+        if variant_set.SetVariantSelection(variant_name):
+            variant_set.SetVariantSelection(variant_name)
+        else:
+            variant_set.AddVariant(variant_name)
+            variant_set.SetVariantSelection(variant_name)
+        
+        with variant_set.GetVariantEditContext():
+            for prim in self.prims:
+
+                binding_api = UsdShade.MaterialBindingAPI(prim)
+                # Get the bound material
+                material, binding_relationship = binding_api.ComputeBoundMaterial()
+                
+                #check if it is valid material
+                if material:
+                    #unbinding the material
+                    binding_api.UnbindAllBindings()
+                    #rebinding the material
+                    binding = binding_api.Bind(material, UsdShade.Tokens.strongerThanDescendants)
+                    
+                    # Missing here: Set the binding strength to strongest - cannot find the correct api call 
+                    # Set the binding strength to strongest
+                    #binding_api.SetMaterialBindingStrength(UsdShade.Tokens.strongerThanDescendants)
+                    #binding_api.SetMaterialBindingStrength(Tf.Token("strongerThanDescendants"))
+                    
+        # unbind the material for the main 
+        for prim in self.prims:
+            UsdShade.MaterialBindingAPI(prim).UnbindAllBindings()

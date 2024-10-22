@@ -8,6 +8,12 @@ from PIL import Image
 
 
 
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable
+from PIL import Image
+
 def plot_value_distribution_transparent(data: np.array, 
                             cmap='viridis', 
                             bins: int = 20, 
@@ -33,7 +39,7 @@ def plot_value_distribution_transparent(data: np.array,
     fig.patch.set_alpha(0)
     ax.patch.set_alpha(0)
 
-    n, bins, patches = ax.hist(data, bins)
+    n, bins, patches = ax.hist(data, bins=bins)
     bin_centers = 0.5 * (bins[:-1] + bins[1:])
     
     # Create a normalized colormap
@@ -54,7 +60,7 @@ def plot_value_distribution_transparent(data: np.array,
             ax.axvline(x=x, color='red', linestyle='--', linewidth=1)
     
     # Add colorbar with white text and ticks
-    cbar = plt.colorbar(sm)
+    cbar = plt.colorbar(sm, ax=ax)  # Add ax parameter here
     cbar.ax.yaxis.set_tick_params(color='white')
     plt.setp(plt.getp(cbar.ax.axes, 'yticklabels'), color='white')
     
