@@ -13,6 +13,7 @@ def get_custom_variables(prim):
     # Get all variables from the prim
     custom_variables = {}
     
+    
     for attr in prim.GetAttributes():
         #eliminate the custom: prefix
         #if attr.GetName().startswith("custom:"):
@@ -44,8 +45,10 @@ def get_custom_variables(prim):
 def get_applicable_variables(prim):
     if prim.IsA(UsdGeom.Mesh):
         mesh = UsdGeom.Mesh(prim)
+
+        
         customVars = get_custom_variables(prim)
-        print(customVars)
+        #print(customVars)
         for key, value in customVars.items():
             if len(value) == 1:
                 print(f"Constant: {key} - {value}")

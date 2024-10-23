@@ -95,6 +95,7 @@ class PrimvizHandler:
             if prim.IsA(UsdGeom.Mesh):
                 
                 mesh = UsdGeom.Mesh(prim)  
+                
                 customVars = cvh.get_custom_variables(prim)
                 
                 if len(list(customVars.items())) != 0:
@@ -480,7 +481,10 @@ class PrimvizHandler:
         
         with variant_set.GetVariantEditContext():
             for prim in self.prims:
+                
+                #also need to add the color binding to the mesh
 
+                
                 binding_api = UsdShade.MaterialBindingAPI(prim)
                 # Get the bound material
                 material, binding_relationship = binding_api.ComputeBoundMaterial()
@@ -500,3 +504,10 @@ class PrimvizHandler:
         # unbind the material for the main 
         for prim in self.prims:
             UsdShade.MaterialBindingAPI(prim).UnbindAllBindings()
+
+            #remove the color primvar if it has one
+            if prim.IsA(UsdGeom.Mesh):
+                mesh = UsdGeom.Mesh(prim)
+                
+                mesh.GetDisplayColorAttr().Clear()
+                mesh.GetDisplayOpacityAttr().Clear()

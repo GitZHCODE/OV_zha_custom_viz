@@ -21,6 +21,7 @@ from .lib import graphviz as gv
 
 import omni.client
 
+import os
 
 
 
@@ -106,28 +107,29 @@ class ZhaCustomdataVizualizationExtension(omni.ext.IExt):
                         lambda model, y: self.gradient_image.set_style({"image_url": self.VizHandler.get_cmap_preview()})
                     )
                 
-                
                 with ui.VStack(height=20):
                     ui.Spacer(height=10)
-                    self.shaderButton = ui.Button("Create shaders", 
+                    self.shaderButton = ui.Button("Create colors", 
                         clicked_fn=lambda: 
                         self.VizHandler.assign_shader(self.type_varying.model.get_item_value_model().as_int, 
                         self.variable_combobox.model.get_item_value_model().as_int, 
                         ))
                 
-                
                 with ui.VStack(height=20):
-                    self.updateButton = ui.Button("Update",
+                    self.updateButton = ui.Button("Update children",
                     clicked_fn=lambda: self.update_prims_selected_path())
                 
                 with ui.VStack(height=20):
                     ui.Spacer(height=10)
                     ui.Label("Graphs")
 
+                # get the location of the python file
+                blank_image_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "data", "Blank_512.png"))
+
                 ui.Spacer(height=10)
-                self.graphs.append(ui.Image(style={'image_url':'data/Blank_512.png'}, 
+                self.graphs.append(ui.Image(style={'image_url':blank_image_path}, 
                         fill_policy=ui.FillPolicy.PRESERVE_ASPECT_FIT, alignment=ui.Alignment.CENTER))
-                self.graphs.append(ui.Image(style={'image_url':'data/Blank_512.png'}, 
+                self.graphs.append(ui.Image(style={'image_url':blank_image_path}, 
                         fill_policy=ui.FillPolicy.PRESERVE_ASPECT_FIT, alignment=ui.Alignment.CENTER))
 
                 ui.Spacer(height=10)
@@ -143,9 +145,7 @@ class ZhaCustomdataVizualizationExtension(omni.ext.IExt):
                     
                 
         self.VizHandler.graphs = self.graphs
-        
-        # self.colormap_preview = gv.plot_gradient_sample(cmap_name=plt.colormaps()[self.colormaps.model.get_item_value_model().as_int])
-    
+
                 
     def on_visMode_changed(self, model, y):
         self._dataTypeIndex = model.get_item_value_model().as_int
