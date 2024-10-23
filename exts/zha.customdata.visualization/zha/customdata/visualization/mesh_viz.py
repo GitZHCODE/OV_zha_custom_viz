@@ -33,6 +33,8 @@ class PrimvizHandler:
         self.usable_custom_variables = []
         self.usable_indices = []
         
+        self.flattened_custom_variables = None
+        
         self.variable_combobox = None
 
         self.variant_set_name = "data_color_visualization"
@@ -188,6 +190,8 @@ class PrimvizHandler:
         else:
             remapped_values = np.full(attributes.shape, 0.5)
         
+        #for exporting to csv -  if export should not be flattened, change here
+        self.flattened_custom_variables = remapped_values
 
         #create the variant set if it does not exist yet
         if self.parent_prim.GetVariantSets().HasVariantSet(self.variant_set_name):
@@ -215,7 +219,6 @@ class PrimvizHandler:
                 
                 if prim != None and prim.IsA(UsdGeom.Mesh):
                     
-
                     value = remapped_values[current_usableIndex]
                     sample_color = cmap(value)
                     sample_color = np.squeeze(np.array(sample_color))[:3]
@@ -246,9 +249,9 @@ class PrimvizHandler:
         valueDisGraph = gv.plot_value_distribution_transparent(data=attributes, cmap=cmap)
         self.graphpaths.append(th.save_temp_image(valueDisGraph, "graph2.png"))
         
-        
         self.graphs[0].set_style({"image_url": self.graphpaths[0]})
         self.graphs[1].set_style({"image_url": self.graphpaths[1]})
+        
 
     ##### working like a charme - just add colors as UI input #####
     def assign_uniform_shader(self, attribute_index: int, cmap = "cividis"):
@@ -276,6 +279,8 @@ class PrimvizHandler:
         
         current_usableIndex = 0
 
+        #for exporting to csv -  if export should not be flattened, change here
+        self.flattened_custom_variables = attributes_flattened
 
         ## adding the variant set
 
@@ -367,6 +372,11 @@ class PrimvizHandler:
         
         if type(attributes_flattened) != np.ndarray:
             return None
+        
+        
+        #for exporting to csv -  if export should not be flattened, change here
+        self.flattened_custom_variables = attributes_flattened
+        
         
         current_usableIndex = 0
 

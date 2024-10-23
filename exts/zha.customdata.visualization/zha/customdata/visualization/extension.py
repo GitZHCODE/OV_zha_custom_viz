@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 
 import tempfile
 from .lib import stagehelpers as sh
+from .lib import exporthelpers as eh
 from .lib import graphviz as gv
 
 import omni.client
@@ -32,6 +33,7 @@ class ZhaCustomdataVizualizationExtension(omni.ext.IExt):
     def __init__(self):
         super().__init__()
         self.VizHandler = mv.PrimvizHandler()
+        self.ExportHandler = eh.ExportHandler()
         
         self._dataTypeIndex = 0
         self._datatypeDict = {0: "By Mesh", 1: "By Faces", 2: "By Vertices"}
@@ -105,7 +107,6 @@ class ZhaCustomdataVizualizationExtension(omni.ext.IExt):
                     )
                 
                 
-                
                 with ui.VStack(height=20):
                     ui.Spacer(height=10)
                     self.shaderButton = ui.Button("Create shaders", 
@@ -114,10 +115,14 @@ class ZhaCustomdataVizualizationExtension(omni.ext.IExt):
                         self.variable_combobox.model.get_item_value_model().as_int, 
                         ))
                 
+                
                 with ui.VStack(height=20):
                     self.updateButton = ui.Button("Update",
                     clicked_fn=lambda: self.update_prims_selected_path())
-
+                
+                with ui.VStack(height=20):
+                    ui.Spacer(height=10)
+                    ui.Label("Graphs")
 
                 ui.Spacer(height=10)
                 self.graphs.append(ui.Image(style={'image_url':'data/Blank_512.png'}, 
@@ -125,6 +130,18 @@ class ZhaCustomdataVizualizationExtension(omni.ext.IExt):
                 self.graphs.append(ui.Image(style={'image_url':'data/Blank_512.png'}, 
                         fill_policy=ui.FillPolicy.PRESERVE_ASPECT_FIT, alignment=ui.Alignment.CENTER))
 
+                ui.Spacer(height=10)
+                
+                with ui.VStack(height=10):
+                    with ui.HStack():
+                        self.exportImageButton = ui.Button("Save Graphs",
+                        clicked_fn=lambda: self.ExportHandler.export_images(imagepaths=self.VizHandler.graphpaths))
+                        
+                        self.exportCSVButton = ui.Button("Export CSV",
+                        clicked_fn=lambda: self.ExportHandler.export_csv(self.VizHandler.flattened_custom_variables))
+                    
+                    
+                
         self.VizHandler.graphs = self.graphs
         
         # self.colormap_preview = gv.plot_gradient_sample(cmap_name=plt.colormaps()[self.colormaps.model.get_item_value_model().as_int])
